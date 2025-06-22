@@ -1,20 +1,23 @@
 document.addEventListener("DOMContentLoaded", function () {
 
     // Load stored task.
-    const previous_tasks = localStorage.getItem('tasks');
-    if (previous_tasks) {
-        const storedList = JSON.parse(previous_tasks);
-        storedList.forEach(element => {
-             const list = document.createElement("li");
-             list.textContent = element.task;
-             taskList.appendChild(list);
-        });
+    function loadTasks() {
+        const storedTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+        if (storedTasks) {
+            storedTasks.forEach(element => {
+                const list = document.createElement("li");
+                list.textContent = element.task;
+                taskList.appendChild(list);
+            });
+        }
     }
+
+    loadTasks()
 
     const addButton = document.getElementById("add-task-btn");
     const taskInput = document.getElementById("task-input");
     const taskList = document.getElementById("task-list");
-    const tasks = [];
+    const currentTask = [];
 
     // Add Task
     function addTask() {
@@ -36,14 +39,25 @@ document.addEventListener("DOMContentLoaded", function () {
                 const buttonClicked = event.target;
                 const item = buttonClicked.closest("li");
                 item.remove();
+
+            // Update local storage after deleting an item.
+            const tasks = JSON.stringify(currentTask)
+            localStorage.setItem(tasks);
+
             }
 
             listItem.appendChild(removeBtn);
             taskList.appendChild(listItem);
-            tasks.push(newTask)
 
-
+            //Update current task
+            currentTask.push(newTask);
             taskInput.value = "";
+
+            // Convert to JSON, and save to local storage.
+            const tasks = JSON.stringify(currentTask)
+            localStorage.setItem(tasks);
+
+
 
         }
     }
