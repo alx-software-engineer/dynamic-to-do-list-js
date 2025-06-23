@@ -1,75 +1,61 @@
 document.addEventListener("DOMContentLoaded", function () {
-
-    // Load stored task.
-    function loadTasks() {
-        const storedTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-        if (storedTasks) {
-            storedTasks.forEach(element => {
-                const list = document.createElement("li");
-                list.textContent = element.task;
-                taskList.appendChild(list);
-            });
-        }
-    }
-
-    loadTasks()
-
+    
     const addButton = document.getElementById("add-task-btn");
     const taskInput = document.getElementById("task-input");
     const taskList = document.getElementById("task-list");
-    const currentTask = [];
+    let currentTask = JSON.parse(localStorage.getItem('tasks') || '[]');
+    
+    
+    
+    function renderTasks() {
+        taskList.innerHTML = "";
+        currentTask.forEach((element, index) => {
+            const list = document.createElement("li");
+            list.textContent = element.task;
+            taskList.appendChild(list);
+            deleteTask(list, index)
+        });
+    }
+
+    renderTasks();
 
     // Add Task
     function addTask() {
-        const taskText = taskInput.value.trim();
+        const taskValue = taskInput.value.trim();
 
         // Check user input.
-        if (!taskText) {
+        if (taskValue === "") {
             alert("Enter a task")
+            return
         } else {
-            const newTask = {task : taskText}
-            const listItem = document.createElement("li");
-            listItem.textContent = taskText;
-            const removeBtn = document.createElement("button");
-            removeBtn.textContent = "Remove";
-            removeBtn.classList.add("remove-btn");
-
-            // Delete Button
-            removeBtn.onclick = function (event) {
-                const buttonClicked = event.target;
-                const item = buttonClicked.closest("li");
-                item.remove();
-
-            // Update local storage after deleting an item.
-            const tasks = JSON.stringify(currentTask)
-            localStorage.setItem(tasks);
-
-            }
-
-            listItem.appendChild(removeBtn);
-            taskList.appendChild(listItem);
-
-            //Update current task
-            currentTask.push(newTask);
+            //Update current task with new task object
+            currentTask.push({task : taskValue});
+            renderTasks()
+            localStorage.setItem("tasks", JSON.stringify(currentTask));
             taskInput.value = "";
-
-            // Convert to JSON, and save to local storage.
-            const tasks = JSON.stringify(currentTask)
-            localStorage.setItem(tasks);
-
-
-
         }
     }
 
+    // Delete an item.
+    function deleteTask(myList, taskIndex) {
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Remove";
+        deleteBtn.classList.add("remove-btn");
+        myList.appendChild(deleteBtn);
+        
+        // Delete event
+        deleteBtn.onclick = function () {
+            currentTask.splice(taskIndex, 1);
+            localStorage.setItem("tasks", JSON.stringify(currentTask));
+            renderTasks()
+        }
+    }
+        
+
     addButton.addEventListener("click", addTask);
     taskInput.addEventListener("keypress", function (event) {
-        const keypressed = event.key;
-        if (keypressed === "Enter") {
+        if (event.key === "Enter") {
             addTask();
         }
     })
-
-    // This ensures your data fetching logic runs once the HTML document has fully loaded.
-    document.addEventListener("DOMContentLoaded", addTask);
 })
