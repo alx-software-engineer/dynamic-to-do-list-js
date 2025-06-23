@@ -50,8 +50,6 @@ document.addEventListener("DOMContentLoaded", function () {
             renderTasks()
         }
     }
-        
-
     addButton.addEventListener("click", addTask);
     taskInput.addEventListener("keypress", function (event) {
         if (event.key === "Enter") {
